@@ -276,8 +276,11 @@ export class InputManager {
         if (intersects.length > 0) {
             const object = intersects[0].object;
             
-            // Highlight cell
-            object.material.emissive.setHex(0x333333);
+            // Highlight cell with brighter color
+            object.material.emissive.setHex(0x777777);
+            // Add pulsing effect
+            object.userData.pulseTime = 0;
+            object.userData.isPulsing = true;
             this.selectedGridCell = object;
         }
         

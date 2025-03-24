@@ -23,12 +23,12 @@ export class RenderManager {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x000000);
         
-        // Set up camera with good default values for enclosed spaces
+        // Set up camera with adjusted FOV for better indoor viewing
         this.camera = new THREE.PerspectiveCamera(
-            75, // Field of view
+            60, // Reduced FOV for better indoor viewing
             window.innerWidth / window.innerHeight, // Aspect ratio
             0.1, // Near clipping plane
-            20 // Far clipping plane - kept small for performance
+            30 // Increased far clipping plane for better visibility
         );
         this.camera.position.set(0, 1.6, 0); // Default human height
         
@@ -49,9 +49,14 @@ export class RenderManager {
         // Handle window resize
         window.addEventListener('resize', this.onWindowResize.bind(this));
         
-        // Initial ambient light (dim)
-        const ambientLight = new THREE.AmbientLight(0x111111);
+        // Base ambient light (increased for better visibility)
+        const ambientLight = new THREE.AmbientLight(0x444444);
         this.scene.add(ambientLight);
+        
+        // Add a directional light as fallback illumination
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
+        directionalLight.position.set(0, 1, 0);
+        this.scene.add(directionalLight);
         
         // Create frustum for culling
         this.frustum = new THREE.Frustum();
@@ -134,7 +139,7 @@ export class RenderManager {
     
     // Utility method to create an emergency light (red)
     createEmergencyLight(position) {
-        const light = new THREE.PointLight(0xff3030, 1, 10);
+        const light = new THREE.PointLight(0xff3030, 1.5, 15);
         light.position.copy(position);
         
         // Add visible bulb for the light source using emissive material
@@ -170,5 +175,33 @@ export class RenderManager {
             roughness: 0.5,
             metalness: 0.7
         });
+    }
+    
+    // Debug utility to dump scene hierarchy
+    dumpSceneHierarchy() {
+        console.log('Scene Hierarchy:');
+        this._dumpObject(this.scene, '- ');
+        
+        // Also dump visible objects only
+        console.log('\nVisible Objects:');
+        this._dumpVisibleObjects(this.scene, '- ');
+    }
+    
+    _dumpObject(obj, indent = '') {
+        console.log(`${indent}${obj.name || obj.type} ${obj.visible ? '(visible)' : '(hidden)'}`);
+        
+        obj.children.forEach(child => {
+            this._dumpObject(child, indent + '  ');
+        });
+    }
+    
+    _dumpVisibleObjects(obj, indent = '') {
+        if (obj.visible) {
+            console.log(`${indent}${obj.name || obj.type}`);
+            
+            obj.children.forEach(child => {
+                this._dumpVisibleObjects(child, indent + '  ');
+            });
+        }
     }
 }

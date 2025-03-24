@@ -267,10 +267,11 @@ export class LevelManager {
                     // Create grid cell
                     const geometry = new THREE.PlaneGeometry(cellSize * 0.9, cellSize * 0.9);
                     const material = new THREE.MeshStandardMaterial({
-                        color: 0x333333,
+                        color: 0x555555,
                         transparent: true,
-                        opacity: 0.1,
-                        emissive: 0x000000
+                        opacity: 0.3,
+                        emissive: 0x222222,
+                        emissiveIntensity: 0.3
                     });
                     
                     const cell = new THREE.Mesh(geometry, material);
@@ -310,35 +311,41 @@ export class LevelManager {
         const roomWidth = width * cellSize;
         const roomHeight = height * cellSize;
         
-        // Create floor
+        // Create floor with subtle grid pattern
         const floorGeometry = new THREE.PlaneGeometry(roomWidth, roomHeight);
         const floorMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x333333,
+            color: 0x444444,
             roughness: 0.8,
-            metalness: 0.2
+            metalness: 0.2,
+            emissive: 0x222222,
+            emissiveIntensity: 0.3
         });
         const floor = new THREE.Mesh(floorGeometry, floorMaterial);
         floor.rotation.x = -Math.PI / 2; // Rotate to be horizontal
         floor.position.y = 0;
         container.add(floor);
         
-        // Create ceiling
+        // Create ceiling with improved visibility
         const ceilingGeometry = new THREE.PlaneGeometry(roomWidth, roomHeight);
         const ceilingMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x222222,
+            color: 0x333333,
             roughness: 0.7,
-            metalness: 0.3
+            metalness: 0.3,
+            emissive: 0x111111,
+            emissiveIntensity: 0.2
         });
         const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
         ceiling.rotation.x = Math.PI / 2; // Rotate to be horizontal and face down
         ceiling.position.y = 2.5; // Ceiling height
         container.add(ceiling);
         
-        // Create walls based on grid
+        // Create walls based on grid with improved visibility
         const wallMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x444444,
+            color: 0x555555,
             roughness: 0.6,
-            metalness: 0.4
+            metalness: 0.4,
+            emissive: 0x222222,
+            emissiveIntensity: 0.3
         });
         
         // Check each grid cell for walls
@@ -426,11 +433,11 @@ export class LevelManager {
             // Create door
             const doorGeometry = new THREE.PlaneGeometry(cellSize, 2);
             
-            // Different material for locked/unlocked doors
+            // Different material for locked/unlocked doors with enhanced visibility
             const doorMaterial = new THREE.MeshStandardMaterial({ 
                 color: conn.locked ? 0xff3030 : 0x30ff30,
                 emissive: conn.locked ? 0xff0000 : 0x00ff00,
-                emissiveIntensity: 0.5,
+                emissiveIntensity: 0.8,
                 side: THREE.DoubleSide
             });
             
@@ -445,9 +452,11 @@ export class LevelManager {
             door.userData.targetPosition = conn.targetPosition;
             door.userData.locked = conn.locked;
             
-            // Add hover effect
+            // Add hover effect with enhanced visibility
             door.userData.hoverEffect = (isHovered) => {
-                door.material.emissiveIntensity = isHovered ? 0.8 : 0.5;
+                door.material.emissiveIntensity = isHovered ? 1.2 : 0.8;
+                // Scale effect
+                door.scale.set(isHovered ? 1.05 : 1, isHovered ? 1.05 : 1, 1);
             };
             
             // Add door to frame
@@ -516,12 +525,12 @@ export class LevelManager {
         const terminal = new THREE.Mesh(baseGeometry, baseMaterial);
         terminal.position.set(x, 0.6, z);
         
-        // Create screen
+        // Create screen with enhanced visibility
         const screenGeometry = new THREE.PlaneGeometry(0.5, 0.4);
         const screenMaterial = new THREE.MeshStandardMaterial({ 
             color: 0x30ff30,
             emissive: 0x00ff00,
-            emissiveIntensity: 0.5
+            emissiveIntensity: 0.9
         });
         const screen = new THREE.Mesh(screenGeometry, screenMaterial);
         screen.position.set(0, 0.2, 0.151); // Position on front of terminal
@@ -534,23 +543,29 @@ export class LevelManager {
         terminal.userData.interactionType = 'terminal';
         terminal.userData.terminalId = terminalId;
         
-        // Add hover effect
+        // Add hover effect with enhanced visibility
         terminal.userData.hoverEffect = (isHovered) => {
-            screen.material.emissiveIntensity = isHovered ? 0.8 : 0.5;
+            screen.material.emissiveIntensity = isHovered ? 1.5 : 0.9;
+            // Add subtle scale and rotation
+            if (isHovered) {
+                terminal.rotation.y = 0.1;
+            } else {
+                terminal.rotation.y = 0;
+            }
         };
         
         return terminal;
     }
     
     createOxygenTank(x, z, amount) {
-        // Create oxygen tank
+        // Create oxygen tank with enhanced visibility
         const tankGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.5, 8);
         const tankMaterial = new THREE.MeshStandardMaterial({ 
             color: 0x3030ff,
             roughness: 0.3,
             metalness: 0.8,
             emissive: 0x0000ff,
-            emissiveIntensity: 0.3
+            emissiveIntensity: 0.7
         });
         const tank = new THREE.Mesh(tankGeometry, tankMaterial);
         tank.position.set(x, 0.25, z);
@@ -560,23 +575,29 @@ export class LevelManager {
         tank.userData.interactionType = 'oxygen';
         tank.userData.amount = amount || 20;
         
-        // Add hover effect
+        // Add hover effect with enhanced visibility
         tank.userData.hoverEffect = (isHovered) => {
-            tank.material.emissiveIntensity = isHovered ? 0.6 : 0.3;
+            tank.material.emissiveIntensity = isHovered ? 1.2 : 0.7;
+            // Bobbing animation when hovered
+            if (isHovered) {
+                tank.position.y = 0.25 + 0.1;
+            } else {
+                tank.position.y = 0.25;
+            }
         };
         
         return tank;
     }
     
     createEvidence(x, z) {
-        // Create evidence container
+        // Create evidence container with enhanced visibility
         const containerGeometry = new THREE.BoxGeometry(0.4, 0.3, 0.4);
         const containerMaterial = new THREE.MeshStandardMaterial({ 
             color: 0xffff30,
             roughness: 0.3,
             metalness: 0.6,
             emissive: 0xffff00,
-            emissiveIntensity: 0.3
+            emissiveIntensity: 0.8
         });
         const container = new THREE.Mesh(containerGeometry, containerMaterial);
         container.position.set(x, 0.15, z);
@@ -585,23 +606,29 @@ export class LevelManager {
         container.userData.interactive = true;
         container.userData.interactionType = 'evidence';
         
-        // Add hover effect
+        // Add hover effect with enhanced visibility
         container.userData.hoverEffect = (isHovered) => {
-            container.material.emissiveIntensity = isHovered ? 0.6 : 0.3;
+            container.material.emissiveIntensity = isHovered ? 1.5 : 0.8;
+            // Rotation effect when hovered
+            if (isHovered) {
+                container.rotation.y = Math.PI / 6;
+            } else {
+                container.rotation.y = 0;
+            }
         };
         
         return container;
     }
     
     createLogDatapad(x, z, logId) {
-        // Create datapad
+        // Create datapad with enhanced visibility
         const padGeometry = new THREE.BoxGeometry(0.3, 0.05, 0.2);
         const padMaterial = new THREE.MeshStandardMaterial({ 
             color: 0x30ffff,
             roughness: 0.4,
             metalness: 0.7,
             emissive: 0x00ffff,
-            emissiveIntensity: 0.3
+            emissiveIntensity: 0.8
         });
         const datapad = new THREE.Mesh(padGeometry, padMaterial);
         datapad.position.set(x, 0.03, z);
@@ -611,9 +638,15 @@ export class LevelManager {
         datapad.userData.interactionType = 'log';
         datapad.userData.logId = logId;
         
-        // Add hover effect
+        // Add hover effect with enhanced visibility
         datapad.userData.hoverEffect = (isHovered) => {
-            datapad.material.emissiveIntensity = isHovered ? 0.6 : 0.3;
+            datapad.material.emissiveIntensity = isHovered ? 1.5 : 0.8;
+            // Floating effect when hovered
+            if (isHovered) {
+                datapad.position.y = 0.1;
+            } else {
+                datapad.position.y = 0.03;
+            }
         };
         
         return datapad;
@@ -649,16 +682,16 @@ export class LevelManager {
         capsule.position.y = 0.9;
         podGroup.add(capsule);
         
-        // Pod window
+        // Pod window with enhanced visibility
         const windowGeometry = new THREE.CircleGeometry(0.3, 16);
         const windowMaterial = new THREE.MeshStandardMaterial({ 
             color: 0x30ffff,
             roughness: 0.1,
             metalness: 0.1,
             emissive: 0x00ffff,
-            emissiveIntensity: 0.4,
+            emissiveIntensity: 0.9,
             transparent: true,
-            opacity: 0.7
+            opacity: 0.8
         });
         const podWindow = new THREE.Mesh(windowGeometry, windowMaterial);
         podWindow.position.set(0, 0.9, 0.5);
@@ -668,9 +701,17 @@ export class LevelManager {
         podGroup.userData.interactive = true;
         podGroup.userData.interactionType = 'escapePod';
         
-        // Add hover effect
+        // Add hover effect with enhanced visibility
         podGroup.userData.hoverEffect = (isHovered) => {
-            podWindow.material.emissiveIntensity = isHovered ? 0.7 : 0.4;
+            podWindow.material.emissiveIntensity = isHovered ? 1.5 : 0.9;
+            // Add subtle pulsing glow
+            if (isHovered) {
+                podWindow.material.opacity = 1.0;
+                capsule.material.emissiveIntensity = 0.5;
+            } else {
+                podWindow.material.opacity = 0.8;
+                capsule.material.emissiveIntensity = 0.2;
+            }
         };
         
         return podGroup;
@@ -680,9 +721,9 @@ export class LevelManager {
         // Create player representation
         const playerGeometry = new THREE.CapsuleGeometry(0.3, 0.5, 4, 8);
         const playerMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x333399,
-            emissive: 0x0000ff,
-            emissiveIntensity: 0.3
+            color: 0x4466ff,
+            emissive: 0x2233ff,
+            emissiveIntensity: 0.7
         });
         this.playerObject = new THREE.Mesh(playerGeometry, playerMaterial);
         
@@ -745,6 +786,8 @@ export class LevelManager {
     }
     
     changeRoom(roomId) {
+        console.log(`Attempting to change from room ${this.currentRoomId} to ${roomId}`);
+        
         // Check if room is loaded
         if (!this.loadedRooms[roomId]) {
             console.error(`Cannot change to room ${roomId} - not loaded`);
@@ -762,11 +805,23 @@ export class LevelManager {
         
         // Hide current room
         if (this.currentRoomId && this.loadedRooms[this.currentRoomId]) {
+            console.log(`Hiding room ${this.currentRoomId}`);
             this.loadedRooms[this.currentRoomId].container.visible = false;
+            
+            // Verify the container is actually hidden
+            if (this.loadedRooms[this.currentRoomId].container.visible) {
+                console.warn(`Failed to hide room ${this.currentRoomId}`);
+            }
         }
         
         // Show new room
+        console.log(`Showing room ${roomId}`);
         this.loadedRooms[roomId].container.visible = true;
+        
+        // Verify the container is actually visible
+        if (!this.loadedRooms[roomId].container.visible) {
+            console.warn(`Failed to show room ${roomId}`);
+        }
         
         // Update current room
         this.currentRoomId = roomId;
@@ -802,11 +857,12 @@ export class LevelManager {
         this.playerObject.position.x = worldX;
         this.playerObject.position.z = worldZ;
         
-        // Update camera to follow player
+        // Update camera to follow player with improved perspective
         const camera = this.game.renderer.getCamera();
         camera.position.x = worldX;
-        camera.position.z = worldZ + 1; // Position camera slightly behind player
-        camera.lookAt(worldX, 1.0, worldZ - 2); // Look ahead of player
+        camera.position.y = 3.5; // Higher position for better overview
+        camera.position.z = worldZ + 2.5; // Position camera further behind player
+        camera.lookAt(worldX, 0.8, worldZ - 1); // Look down at player
         
         // Update player position in state
         this.game.state.setPlayerPosition(x, z);
