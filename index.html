@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Last Light - Orbital Escape</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff3030;
+            font-size: 18px;
+        }
+        #oxygen-meter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 150px;
+            height: 30px;
+            border: 2px solid #ff3030;
+            display: none;
+        }
+        #oxygen-bar {
+            height: 100%;
+            width: 100%;
+            background-color: #ff3030;
+            transition: width 1s linear;
+        }
+        #interaction-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 48, 48, 0.7);
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            user-select: none;
+            cursor: pointer;
+        }
+        #terminal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 600px;
+            height: 70%;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff3030;
+            color: #ff3030;
+            padding: 20px;
+            font-family: monospace;
+            display: none;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">INITIALIZING SYSTEMS...</div>
+    <div id="oxygen-meter"><div id="oxygen-bar"></div></div>
+    <div id="interaction-button">USE</div>
+    <div id="terminal"></div>
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>
